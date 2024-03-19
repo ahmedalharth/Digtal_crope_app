@@ -3,18 +3,16 @@ import pandas as pd
 import plotly.express as px
 
 st.set_page_config(layout="wide", page_title="HR Case Study ", page_icon=":soccer:")
-# df = pd.read_csv('data.csv')
-# df['HireDate'] = pd.to_datetime(df['HireDate'])
-# df['HireDate_year'] = df['HireDate'].dt.year
-# df['HireDate_month'] = df['HireDate'].dt.month
-# df['HireDate_day'] = df['HireDate'].dt.day
-# df['ReviewDate_temp'] = pd.to_datetime(df['ReviewDate'])
-# df['ReviewDate_year'] = df['ReviewDate_temp'].dt.year
-# df['ReviewDate_month'] = df['ReviewDate_temp'].dt.month
-# df['ReviewDate_day'] = df['ReviewDate_temp'].dt.day
-# total_employees=df['EmployeeID'].nunique()
-# activeemp = df[df['Attrition'] == 'No']['EmployeeID'].nunique()
-# inactive_emp = total_employees - activeemp
+# Read the data
+train_df = pd.read_csv('Train.csv')
+test_df = pd.read_csv('Test.csv')
+
+# file with discribtion for each fatuer
+var_def = pd.read_csv('VariableDescription.csv')
+
+
+print("Train data shape : " ,train_df.shape)
+print("Test data shape : " ,test_df.shape)
 # AttritionRate = str(int((inactive_emp / total_employees) * 100))+ ' %'
 # tab1,tab2 = st.tabs(['overview' , 'employee'])
 
