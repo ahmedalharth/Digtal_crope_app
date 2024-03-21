@@ -6,22 +6,24 @@ st.set_page_config(layout="wide", page_title="Digtal Crope Yield", page_icon= '
 # Read the data
 train_df = pd.read_csv('Train.csv')
 test_df = pd.read_csv('Test.csv')
-
-# file with discribtion for each fatuer
-var_def = pd.read_csv('VariableDescription.csv')
-                                                                                
+                                                                          
 
 # Concatenate the data to over view what's going on ...
 train_df['Set'] = 'Train'
 test_df['Set'] = 'Test'
 df = pd.concat([train_df , test_df])
 
+# file with discribtion for each fatuer
+var_def = pd.read_csv('VariableDescription.csv')
+# Change the index of the VariableDescription file ,, to esay access leater...
+var_def.set_index('Variable' , inplace=True)
+
 # Title
 st.title("Digtal Crope Estimation Problem ")
 
 # Introduction 
 st.header("Introduction" )
-st.markdown("## Problem statment" )
+st.markdown("## Problem statment")
 st.markdown("#### Digtal crope yield estmation in India ")
 st.write("""* Smallholder farmers are crucial contributors to global food production,
           and in India often suffer most from poverty and malnutrition.
@@ -37,24 +39,57 @@ st.write("""* *The data was collected through a survey conducted across multiple
 st.write("""* The data source is [Digital Green](https://digitalgreen.org/),
           Which hosted the data as a competition in [zindi platform](https://zindi.africa/competitions/digital-green-crop-yield-estimate-challenge/data).""") 
 
-st.write("* Data structer '.csv' files")
+st.write("* Data structure '.csv' files")
 st.write("* Data Shape:", df.shape)
 
-c1 , c2 = st.columns(2)
-
-with c1:
+c1 ,c2 = st.columns(2)
+with c1 : 
     # check box 
-    if st.checkbox("Variables defintion:") :
+    if st.checkbox("Variables defintion and dtype:") :
         st.write(var_def)
-with c2:
-    if st.checkbox("Features types:") :
-        st.write(df.dtypes.sort_values())
+with c2 :
+    if st.checkbox("Varibles type:") :
+            st.write(df.dtypes)
 
 if st.checkbox("DataFrame:") :
-        st.write(df.head())
+            st.write(df.head())
 
 st.subheader("Workfllow Describtion")
-st.markdown("""##### After working on the dataset that what I done: """)
+st.write("""**üìç Note: All what we see here is coming as a result of data analysis,
+          dealing with missing data and  dealing with outliers.**""")
+st.write("""* You can find all detail in this [Notebook](https://github.com/ahmedalharth/Digtal_crope_app/blob/main/Digtal_crop_1.ipynb). """)
+st.markdown("""#### **The data contain different types of features :**""")
+
+# Date time features 
+date_col = [x for x in list(df.columns) if str(x).endswith('ate') ] + ['SeedingSowingTransplanting']
+st.write('Numebr of datetime features : ' , len(date_col))
+# Convert to datetime
+for feat in date_col:
+    df[feat] = pd.to_datetime(df[feat])
+
+# Catogrical columns 
+cat_col = df.select_dtypes(include=['O' , 'bool']).columns.to_list()
+st.write('Numebr of catogrical features : ' , len(cat_col))
+
+
+    # Numerical featuers 
+num_col = df.select_dtypes(exclude=['O' , 'bool' , 'datetime64[ns]']).columns.to_list()
+st.write('Numebr of numerical features : ' , len(num_col))
+
+st.write("Hint: The catogrical data dosen't contain features of order type.")
+
+# date time features 
+st.markdown("#### Datetime features:")
+c3 ,c4 = st.columns(2)
+with c3:
+      st.write(df[date_col].describe().T)
+
+with c4:
+      st.write(var_def.loc[date_col])
+
+# Catogrical features
+st.markdown("#### Catogrical features:")
+st.write("""After analysis we end up with """)
 
 
 
