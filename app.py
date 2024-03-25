@@ -1,9 +1,13 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.express as px
-from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.impute import KNNImputer
+from sklearn.linear_model import LinearRegression
+
+
 
 st.set_page_config(layout="wide", page_title="Digtal Crope Yield", page_icon= '🌱')
 # Read the data
@@ -21,11 +25,31 @@ var_def = pd.read_csv('VariableDescription.csv')
 # Change the index of the VariableDescription file ,, to esay access leater...
 var_def.set_index('Variable' , inplace=True)
 
+
+
 # Date time features 
 date_col = [x for x in list(df.columns) if str(x).endswith('ate') ] + ['SeedingSowingTransplanting']
 # Convert to datetime
 for feat in date_col:
     df[feat] = pd.to_datetime(df[feat])
+
+# Extract seasons
+
+def get_season(month):
+    if month in [3, 4, 5]:
+        return 'Spring'
+    elif month in [6, 7, 8]:
+        return 'Summer'
+    elif month in [9, 10, 11]:
+        return 'Autumn'
+    else:
+        return 'Winter'
+    
+season = []
+for feat in date_col:
+    # Apply function to 'Date' column and create new 'Season' column
+    df[f'{feat}_Season'] = df[feat].dt.month.apply(lambda x: get_season(x))
+    season += [f'{feat}_Season']
 
 # Catogrical columns 
 cat_col = df.select_dtypes(include=['O' , 'bool']).columns.to_list()
@@ -48,6 +72,37 @@ outliers = df[num_col].apply(detect_outliers_iqr)
 # Total number of outliers in the DataFrame
 total_outliers = outliers.sum().sum()
 
+
+# Ther is a smalle confusion about Gurua block matching with Jamui district
+df.loc[(df["District"] == 'Jamui') & (df["Block"] == 'Gurua')].index
+df.loc[2177 , "District"] = "Gaya"
+
+# cut off the max for those features
+df = df[df['CultLand'] != 800]
+df = df[df['CropCultLand'] != 800]
+df = df[df['SeedlingsPerPit'] != 442]
+df = df[(df['TransplantingIrrigationHours'] != 2000.0) & (df['TransplantingIrrigationHours'] != 1000)]
+df = df[df['TransIrriCost'] != 6000.0]
+df = df[df['1tdUrea'] != 120]
+df = df[df['1appDaysUrea'] != 332.0]
+
+
+def out_iqr(df , column):
+    global lower,upper
+    q25, q75 = np.quantile(df[column], 0.25), np.quantile(df[column], 0.75)
+    iqr = q75 - q25
+    cut_off = iqr * 1.96
+    lower, upper = q25 - cut_off, q75 + cut_off
+    # print('The IQR is',iqr)
+    # print('The lower bound value is', lower)
+    # print('The upper bound value is', upper)
+    # df1 = df[df[column] > upper]
+    # df2 = df[df[column] < lower]
+    df = df[(df[column] > lower) & (df[column] < upper) ]
+    # print('Total number of outliers are', df1.shape[0]+ df2.shape[0])
+    return   df 
+# df[num_col] = out_iqr(df , 'Yield')
+# df[num_col] = out_iqr(df , 'Acre')
 
 # # Fit linear regression model
 # model = LinearRegression()
@@ -182,6 +237,17 @@ df.drop(to_drop_ca , axis=1 , inplace= True)
 cat_col=[x for x in cat_col if x not in drop_col]
 num_col=[x for x in num_col if x not in drop_col]
 cat_col = [x for x in cat_col if x not in to_drop_ca] 
+
+
+
+knn = KNNImputer(n_neighbors=5)
+knn.fit(train_df[num_col])
+df[num_col] = knn.transform(df[num_col])
+
+for feat in cat_col:
+    df[feat].fillna(value= df[feat].mode()[0]  , inplace=True)
+
+
 # Catogrical features
 st.markdown("#### After Data cleainig we end up with")
 # Date time features 
@@ -205,28 +271,97 @@ with c2:
     with st.expander("Defintions"):
          st.write(var_def.loc[date_col])
 
-def get_season(month):
-    if month in [3, 4, 5]:
-        return 'Spring'
-    elif month in [6, 7, 8]:
-        return 'Summer'
-    elif month in [9, 10, 11]:
-        return 'Autumn'
-    else:
-        return 'Winter'
-    
-season = []
-for feat in date_col:
-    # Apply function to 'Date' column and create new 'Season' column
-    df[f'{feat}_Season'] = df[feat].dt.month.apply(lambda x: get_season(x))
-    season += [f'{feat}_Season']
+
+
+st.markdown('I devide the date time features to seasons, to see rice cultivation cycle.')
+cat_col = [x for x in cat_col if x not in season + ['Set']]
+c1 , c2 = st.columns(2)
+with c1:
+    st.write('Rice Cultivation seasons ')
+    st.image('seasons1.png' , caption='Cultivation seasons ' , use_column_width=True )
+
+with c2:
+    st.write('Rice Harvrest seasons ')
+    st.image('seasons2.png' , caption='Harvrest seasons ' , use_column_width=True )
+
+st.markdown("* Catogrical features :")
+st.write("**District and Block**")
+
+c1 ,c2 = st.columns(2)
+
+with c1 :
+    with st.expander("Dsecribtion"):
+        st.write(df.groupby('District')['Block'].unique())
+with c2:
+    with st.expander("Defintions"):
+         st.write(var_def.loc[['District' , 'Block']])
 
 c1 , c2 = st.columns(2)
 with c1:
-    st.plotly_chart(px.histogram(data_frame=df , x='Harv_date_Season' , y='Yield' ,color='District'))
+    st.write('Pie chart')
+    st.plotly_chart(px.histogram(df , y='Block' , color='District', height=300 , width=400))
+
 
 with c2:
-    st.plotly_chart(px.histogram(data_frame=df , x='RcNursEstDate_Season' , y='Yield' , color='District'))
+    st.write('Count plot')
+    st.plotly_chart(px.pie(data_frame=df , names='District', height=300 , width=400))
+
+st.write("Transplantation, harvesting and threshing methods.")
+c1 ,c2 = st.columns(2)
+
+with c1 :
+    with st.expander("Dsecribtion"):
+        st.write(df[['CropEstMethod' , 'Harv_method' , 'Threshing_method']].describe().T)
+    st.plotly_chart(px.histogram(data_frame=df , x='Harv_method' , y='Yield', height=400 , width=400))
+    st.plotly_chart(px.histogram(data_frame=df , x='CropEstMethod' , y='Yield', height=400 , width=400))
+with c2:
+    with st.expander("Defintions"):
+         st.write(var_def.loc[['CropEstMethod' , 'Harv_method' , 'Threshing_method']])
+    st.plotly_chart(px.histogram(data_frame=df , x='Threshing_method' , y='Yield', height=400 , width=400))
+
+
+st.write("Source of water and Source of power")
+c1 ,c2 = st.columns(2)
+with c1 :
+    with st.expander("Dsecribtion"):
+        st.write(df[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']].describe().T)
+    st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationSource' , y="Yield" ,width=400 , height=300))
+with c2:
+    with st.expander("Defintions"):
+         st.write(var_def.loc[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']])
+    st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationPowerSource' , y="Yield" ,width=400 , height=300))
+
+st.write("Methods of fertilization")
+c1 ,c2  , c3= st.columns(3)
+with c1 :
+    with st.expander("Dsecribtion"):
+        st.write(df[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' , 'MineralFertAppMethod.1' , 'Stubble_use']].describe().T)
+    st.plotly_chart(px.histogram(df , x='PCropSolidOrgFertAppMethod' , y='Yield' , height=300 , width=400 ))
+    st.plotly_chart(px.histogram(df , x='MineralFertAppMethod' , y='Yield' , height=300 , width=400 ))
+
+with c2:
+    with st.expander("Defintions"):
+         st.write(var_def.loc[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' ,'MineralFertAppMethod.1','Stubble_use']])
+    st.plotly_chart(px.histogram(df , x='MineralFertAppMethod.1' , y='Yield' , height=300 , width=400))
+    st.plotly_chart(px.histogram(df , x='Stubble_use', y='Yield',  height=300 , width=400))
+st.write("**📍 Note: We dealing with imbalance data.**")
+
+
+st.markdown("* Numerical features :")
+st.write("**Acre and Yield**")
+
+c1 ,c2 = st.columns(2)
+
+with c1 :
+    with st.expander("Dsecribtion"):
+        st.write(df[['Acre', 'Yield']].describe().T)
+    st.plotly_chart(px.histogram(data_frame=df , x='Yield' , height=300 , width=400))
+with c2:
+    with st.expander("Defintions"):
+         st.write(var_def.loc[['Acre' , 'Yield']])
+    st.plotly_chart(px.histogram(data_frame=df , x='Acre' , height=300 , width=400))
+    
+
 
      
 
