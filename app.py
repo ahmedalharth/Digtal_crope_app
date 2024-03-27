@@ -539,7 +539,6 @@ with c3:
 st.sidebar.title("Content")
 
 st.sidebar.markdown(" # Introduction")
-st.sidebar.markdown(f'<a href="#Introduction">Introduction</a>', unsafe_allow_html=True)
 
 st.sidebar.write(" * Problem statment ")
 st.sidebar.write(" * Data ")
