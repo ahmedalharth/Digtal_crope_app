@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import KNNImputer
 from sklearn.linear_model import LinearRegression
+import pingouin as pg
+pd.options.display.float_format = '{:.2f}'.format 
+
 
 
 
@@ -74,12 +77,12 @@ total_outliers = outliers.sum().sum()
 
 
 # Ther is a smalle confusion about Gurua block matching with Jamui district
-df.loc[(df["District"] == 'Jamui') & (df["Block"] == 'Gurua')].index
+# df.loc[(df["District"] == 'Jamui') & (df["Block"] == 'Gurua')].index
 df.loc[2177 , "District"] = "Gaya"
 
 # cut off the max for those features
-df = df[df['CultLand'] != 800]
-df = df[df['CropCultLand'] != 800]
+df = df[df['CultLand'] <= 250]
+df = df[df['CropCultLand'] <= 250]
 df = df[df['SeedlingsPerPit'] != 442]
 df = df[(df['TransplantingIrrigationHours'] != 2000.0) & (df['TransplantingIrrigationHours'] != 1000)]
 df = df[df['TransIrriCost'] != 6000.0]
@@ -89,20 +92,35 @@ df = df[df['1appDaysUrea'] != 332.0]
 
 def out_iqr(df , column):
     global lower,upper
-    q25, q75 = np.quantile(df[column], 0.25), np.quantile(df[column], 0.75)
+    q25, q75 = df[column].quantile(0.25), df[column].quantile(0.75)
     iqr = q75 - q25
     cut_off = iqr * 1.96
     lower, upper = q25 - cut_off, q75 + cut_off
-    # print('The IQR is',iqr)
-    # print('The lower bound value is', lower)
-    # print('The upper bound value is', upper)
-    # df1 = df[df[column] > upper]
-    # df2 = df[df[column] < lower]
-    df = df[(df[column] > lower) & (df[column] < upper) ]
-    # print('Total number of outliers are', df1.shape[0]+ df2.shape[0])
+    df = df[(df[column] > lower) & (df[column] < upper)]
     return   df 
-# df[num_col] = out_iqr(df , 'Yield')
-# df[num_col] = out_iqr(df , 'Acre')
+df = out_iqr(df , 'Yield')
+df = out_iqr(df , 'Acre')
+
+# Correlatede features 
+def find_highly_correlated_features(data, threshold=0.6):
+    """
+    Find and display highly correlated features in a dataset.
+
+    Parameters:
+    - data: pandas DataFrame
+    - threshold: correlation threshold (default is 0.8)
+
+    Returns:
+    - List of tuples representing highly correlated feature pairs
+    """
+    corr_matrix = data.corr().abs()
+    upper_triangle = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(np.bool))
+
+    # Find features with correlation above the threshold
+    correlated_features = [(col1, col2) for col1 in upper_triangle.columns for col2 in upper_triangle.columns if upper_triangle.loc[col1, col2] > threshold]
+
+
+    return correlated_features
 
 # # Fit linear regression model
 # model = LinearRegression()
@@ -121,7 +139,7 @@ def out_iqr(df , column):
 st.title("Digtal Crope Estimation Problem ")
 
 # Introduction 
-st.header("Introduction" )
+st.header("Introduction")
 st.markdown("## Problem statment")
 st.markdown("#### Digtal crope yield estmation in India ")
 st.write("""* Smallholder farmers are crucial contributors to global food production,
@@ -172,7 +190,7 @@ st.write('Numebr of catogrical features : ' , len(cat_col))
 # Numerical featuers 
 st.write('Numebr of numerical features : ' , len(num_col))
 
-st.write("Hint: The catogrical data dosen't contain features of order type.")
+st.write("Hint: The catogrical data dosen't contain features of ordinal type.")
 
 st.write("""##### 📍 Note:""")
 st.write("""* **All what we see here is coming as a result of data analysis,
@@ -348,22 +366,71 @@ st.write("**📍 Note: We dealing with imbalance data.**")
 
 
 st.markdown("* Numerical features :")
-st.write("**Acre and Yield**")
 
-c1 ,c2 = st.columns(2)
+feat = st.selectbox('choose a variable to see it\'s distribution' , options= num_col)
+st.write(var_def.loc[feat])
+st.plotly_chart(px.histogram(data_frame=df , x=feat  , marginal='box' ))
 
-with c1 :
-    with st.expander("Dsecribtion"):
-        st.write(df[['Acre', 'Yield']].describe().T)
-    st.plotly_chart(px.histogram(data_frame=df , x='Yield' , height=300 , width=400))
+st.markdown("* *Bi variante* :")
+st.write("Correlated features")
+c1 , c2 , c3 = st.columns(3)
+with c1:
+    st.plotly_chart(px.scatter(data_frame=df , x='CultLand', y='CropCultLand', width=350 , title="CultLand vs CropCultLand"))    
 with c2:
-    with st.expander("Defintions"):
-         st.write(var_def.loc[['Acre' , 'Yield']])
-    st.plotly_chart(px.histogram(data_frame=df , x='Acre' , height=300 , width=400))
-    
+    st.plotly_chart(px.scatter(data_frame=df , x='BasalDAP', y= '1tdUrea', width=350, title="BasalDAP vs 1tdUrea"))
+with c3:
+    st.plotly_chart(px.scatter(data_frame=df , x='Acre', y='Yield' , width=350, title="Yield vs Acre"))
+
+st.subheader("Infrence")
+st.write("* **In this section we gonna use some statistics, hypothesis testing**")
+st.write("* **We will us noneparametric tests , due the data is not normaly distribuit**")
+st.markdown("<h6>1- Mann_wetny U tset<h6/>" , unsafe_allow_html=True)
+
+c1 , c2 ,c3 = st.columns(3)
+with c1:
+    # 1- Harv_method
+    st.write("**Harv_method ('hand' , 'machine')**")
+    group1 = train_df[train_df['Harv_method']=="hand"]
+    st.write("- Group1 n=",group1.shape[0])
+    group2 = train_df[train_df['Harv_method']=="machine"]
+    st.write("- Group2 n=",group2.shape[0])
+    st.write("H0: Group1[Yield]median = Group2[Yeild]median")
+    st.write("H1: Group1[Yield]median < Group2[Yeild]median")
+
+    st.write(pg.mwu(group1["Yield"], group2["Yield"],alternative='less').T)
+    st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
+             the median of yield given harv_method == 'hand' is less than the median of yield given harv_method == 'machine' """)
+with c2:
+    # 1- Threshing_method
+    st.write("**Threshing_method ('hand' , 'machine')**")
+    group1 = train_df[train_df['Threshing_method']=="hand"]
+    st.write("- Group1 n=",group1.shape[0])
+    group2 = train_df[train_df['Threshing_method']=="machine"]
+    st.write("- Group2 n=",group2.shape[0])
+
+    st.write("H0: Group1[Yield]median = Group2[Yeild]median")
+    st.write("H1: Group1[Yield]median < Group2[Yeild]median")
+
+    st.write(pg.mwu(group1["Yield"], group2["Yield"],alternative='less').T)
+    st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
+             the median of yield given Threshing_method == 'hand' is less than the median of yield given Threshing_method == 'machine'""")    
+
+with c3:
+    # 1- Stubble_use
+    st.write("**Threshing_method ('hand' , 'machine')**")
+    group1 = train_df[train_df['Stubble_use']=="plowed_in_soil"]
+    st.write("- Group1 n=",group1.shape[0])
+    group2 = train_df[train_df['Stubble_use']=="burned"]
+    st.write("- Group2 n=",group2.shape[0])
+
+    st.write("H0: Group1[Yield]median = Group2[Yeild]median")
+    st.write("H1: Group1[Yield]median ≠ Group2[Yeild]median")
+
+    st.write(pg.mwu(group1["Yield"], group2["Yield"],alternative='two-sided').T)
+    st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
+             the median of yield given Threshing_method == 'plowed_in_soil' not equal the median of yield given Threshing_method == 'burned'""")
 
 
-     
 
 # Radio button
 # radio_button = st.radio("Choose an option", ("Option 1", "Option 2", "Option 3"))
@@ -472,6 +539,8 @@ with c2:
 st.sidebar.title("Content")
 
 st.sidebar.markdown(" # Introduction")
+st.sidebar.markdown(f'<a href="#Introduction">Introduction</a>', unsafe_allow_html=True)
+
 st.sidebar.write(" * Problem statment ")
 st.sidebar.write(" * Data ")
 st.sidebar.write(" * Workfllow Describtion ")
@@ -482,6 +551,28 @@ st.sidebar.write(" * EDA ")
 st.sidebar.write(" * Infrence  ")
 
 st.sidebar.markdown(" # insghts")
+
+
+# # Define the subjects
+# subjects = ["Subject 1", "Subject 2", "Subject 3"]
+
+# # Create a sidebar with subjects as options
+# selected_subject = st.sidebar.selectbox("Select a Subject", subjects)
+
+# # Define the content for each subject
+# subject_content = {
+#     "Subject 1": "This is the content for Subject 1.",
+#     "Subject 2": "This is the content for Subject 2.",
+#     "Subject 3": "This is the content for Subject 3."
+# }
+
+# # Generate anchor links for each subject
+# for subject_name in subject_content.keys():
+#     st.sidebar.markdown(f'<a href="#{subject_name}">{subject_name}</a>', unsafe_allow_html=True)
+
+# # Display the content based on the selected subject
+# for subject_name, content in subject_content.items():
+#     st.markdown(f'<h2 id="{subject_name}">{subject_name}</h2>', unsafe_allow_html=True)
 
 
 
