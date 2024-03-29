@@ -587,26 +587,4 @@ st.sidebar.write(" * Infrence  ")
 st.sidebar.markdown(" # insghts")
 
 
-# # Define the subjects
-# subjects = ["Subject 1", "Subject 2", "Subject 3"]
-
-# # Create a sidebar with subjects as options
-# selected_subject = st.sidebar.selectbox("Select a Subject", subjects)
-
-# # Define the content for each subject
-# subject_content = {
-#     "Subject 1": "This is the content for Subject 1.",
-#     "Subject 2": "This is the content for Subject 2.",
-#     "Subject 3": "This is the content for Subject 3."
-# }
-
-# # Generate anchor links for each subject
-# for subject_name in subject_content.keys():
-#     st.sidebar.markdown(f'<a href="#{subject_name}">{subject_name}</a>', unsafe_allow_html=True)
-
-# # Display the content based on the selected subject
-# for subject_name, content in subject_content.items():
-#     st.markdown(f'<h2 id="{subject_name}">{subject_name}</h2>', unsafe_allow_html=True)
-
-
 
