@@ -410,7 +410,43 @@ with c1:
     st.write("H0: Group1[Yield]median = Group2[Yeild]median")
     st.write("H1: Group1[Yield]median < Group2[Yeild]median")
 
-    st.write(pg.mwu(group1["Yield"], group2["Yield"],alternative='less').T)
+    st.write("""<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>U-val</th>
+      <th>alternative</th>
+      <th>p-val</th>
+      <th>RBC</th>
+      <th>CLES</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>MWU</th>
+      <td>17454.00</td>
+      <td>two-sided</td>
+      <td>0.00</td>
+      <td>0.51</td>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div>""" ,unsafe_allow_html=True)
     st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
              the median of yield given harv_method == 'hand' is less than the median of yield given harv_method == 'machine' """)
 with c2:
