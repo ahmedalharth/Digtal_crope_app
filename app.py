@@ -428,25 +428,33 @@ with c1:
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>U-val</th>
-      <th>alternative</th>
-      <th>p-val</th>
-      <th>RBC</th>
-      <th>CLES</th>
+      <th>MWU</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <th>MWU</th>
-      <td>17454.00</td>
+      <th>U-val</th>
+      <td>229543.50</td>
+    </tr>
+    <tr>
+      <th>alternative</th>
       <td>two-sided</td>
+    </tr>
+    <tr>
+      <th>p-val</th>
       <td>0.00</td>
-      <td>0.51</td>
-      <td>0.25</td>
+    </tr>
+    <tr>
+      <th>RBC</th>
+      <td>0.30</td>
+    </tr>
+    <tr>
+      <th>CLES</th>
+      <td>0.35</td>
     </tr>
   </tbody>
 </table>
-</div>""" ,unsafe_allow_html=True)
+</div>""",unsafe_allow_html=True)
     st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
              the median of yield given harv_method == 'hand' is less than the median of yield given harv_method == 'machine' """)
 with c2:
