@@ -2,11 +2,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.impute import KNNImputer
 from sklearn.linear_model import LinearRegression
 import pingouin as pg
+from scipy.stats import kruskal
 pd.options.display.float_format = '{:.2f}'.format 
 
 
@@ -446,7 +446,7 @@ with c3:
 st.markdown("<h6>2- Kruskal-Wallis test<h6/>" , unsafe_allow_html=True)
 st.write("""* Null hypothesis (H0): There is no difference in the medians of the groups being compared.
 * Alternative hypothesis (H1): There is a difference in the medians of the groups being compared.""")
-from scipy.stats import kruskal
+
 st.write("**Zone ('zone1', 'zone2', 'zone3')**")
 group1 = train_df[train_df['Zone']=="zone1"]
 st.write("- Group1 n=",group1.shape[0])
