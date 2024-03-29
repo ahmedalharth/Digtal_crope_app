@@ -140,13 +140,13 @@ def find_highly_correlated_features(data, threshold=0.6):
 
 # Custom theme configuration
 
-# Set the Streamlit theme
-st.write("""[theme]
-base="dark"
-backgroundColor="#155049"
-secondaryBackgroundColor="#0e290e"
-font="monospace"
-""", unsafe_allow_html=True)
+# # Set the Streamlit theme
+# st.write("""[theme]
+# base="dark"
+# backgroundColor="#155049"
+# secondaryBackgroundColor="#0e290e"
+# font="monospace"
+# """, unsafe_allow_html=True)
 
 # Title
 st.title("Digtal Crope Estimation Problem ")
