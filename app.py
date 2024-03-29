@@ -166,13 +166,13 @@ c1 ,c2 = st.columns(2)
 with c1 : 
     # check box 
     if st.checkbox("Variables defintion ") :
-        st.dataframe(var_def)
+        st.table(var_def)
 with c2 :
     if st.checkbox("Varibles type:") :
-            st.dataframe(df.dtypes)
+            st.table(df.dtypes)
 
 if st.checkbox("DataFrame:") :
-            st.dataframe(df.head())
+            st.table(df.head())
 
 
 
