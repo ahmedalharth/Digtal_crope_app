@@ -53,6 +53,18 @@ for feat in date_col:
     # Apply function to 'Date' column and create new 'Season' column
     df[f'{feat}_Season'] = df[feat].dt.month.apply(lambda x: get_season(x))
     season += [f'{feat}_Season']
+# divide to Zones
+def assign_value(District):
+    if District == 'Nalanda' or District == 'Gaya':
+        return 'zone1'
+    elif District == 'Jamui' :
+        return 'zone2'
+    elif District == 'Vaishali':
+        return 'zone3'
+    
+df['Zone'] = df['District'].apply(assign_value)
+train_df['Zone'] = train_df['District'].apply(assign_value)
+
 
 # Catogrical columns 
 cat_col = df.select_dtypes(include=['O' , 'bool']).columns.to_list()
@@ -122,17 +134,8 @@ def find_highly_correlated_features(data, threshold=0.6):
 
     return correlated_features
 
-# # Fit linear regression model
-# model = LinearRegression()
-# X , y = df[num_col].drop('Yield' , axis=1) , df.Yield
-# model.fit(X, y)
-
-# # Calculate residuals
-# residuals = y - model.predict(X)
-
 
 ##################################################################################################
-
 # The Bage
 
 # Title
@@ -162,8 +165,8 @@ st.write("* Data Shape:", df.shape)
 c1 ,c2 = st.columns(2)
 with c1 : 
     # check box 
-    if st.checkbox("Variables defintion and dtype:") :
-        st.write(var_def['dtypes'])
+    if st.checkbox("Variables defintion ") :
+        st.write(var_def)
 with c2 :
     if st.checkbox("Varibles type:") :
             st.write(df.dtypes)
@@ -279,89 +282,88 @@ st.write('Numebr of numerical features : ' , len(num_col))
 # Analysis
 st.header("Analysis")
 st.subheader("EDA")
-st.markdown("* Date time features :")
-c1 ,c2 = st.columns(2)
+st.markdown('* Date time features :')
+if st.checkbox("Seasons"):
+    c1 ,c2 = st.columns(2)
 
-with c1 :
-    with st.expander("Dsecribtion"):
-        st.write(df[date_col].describe().T)
-with c2:
-    with st.expander("Defintions"):
-         st.write(var_def.loc[date_col])
+    with c1 :
+        with st.expander("Dsecribtion"):
+            st.write(df[date_col].describe().T)
+    with c2:
+        with st.expander("Defintions"):
+            st.write(var_def.loc[date_col])
 
 
 
-st.markdown('I devide the date time features to seasons, to see rice cultivation cycle.')
-cat_col = [x for x in cat_col if x not in season + ['Set']]
-c1 , c2 = st.columns(2)
-with c1:
-    st.write('Rice Cultivation seasons ')
-    st.image('seasons1.png' , caption='Cultivation seasons ' , use_column_width=True )
+    st.markdown('I devide the date time features to seasons, to see rice cultivation cycle.')
+    cat_col = [x for x in cat_col if x not in season + ['Set']]
+    c1 , c2 = st.columns(2)
+    with c1:
+        st.write('Rice Cultivation seasons ')
+        st.image('seasons1.png' , caption='Cultivation seasons ' , use_column_width=True )
 
-with c2:
-    st.write('Rice Harvrest seasons ')
-    st.image('seasons2.png' , caption='Harvrest seasons ' , use_column_width=True )
+    with c2:
+        st.write('Rice Harvrest seasons ')
+        st.image('seasons2.png' , caption='Harvrest seasons ' , use_column_width=True )
 
 st.markdown("* Catogrical features :")
-st.write("**District and Block**")
+if st.checkbox("**District, Block and Zone**") :
 
-c1 ,c2 = st.columns(2)
+    c1 ,c2 ,c3 = st.columns(3)
 
-with c1 :
-    with st.expander("Dsecribtion"):
-        st.write(df.groupby('District')['Block'].unique())
-with c2:
-    with st.expander("Defintions"):
-         st.write(var_def.loc[['District' , 'Block']])
+    with c1 :
+        with st.expander("Dsecribtion"):
+            st.write(df.groupby('District')['Block'].unique())
+        st.write('Pie chart')
+        st.plotly_chart(px.histogram(df , y='Block' , color='District', height=300 , width=300))
+    with c2:
+        with st.expander("Defintions"):
+            st.write(var_def.loc[['District' , 'Block']])
+        st.write('Count plot')
+        st.plotly_chart(px.pie(data_frame=df , names='District', height=300 , width=300))
+    with c3:
+        with st.expander("zone"):
+            st.write(df['Zone'].describe())
+        st.write('Count plot')
+        st.plotly_chart(px.pie(data_frame=df , names='Zone', height=300 , width=300))
+if st.checkbox("Transplantation, harvesting and threshing methods."):
+    c1 ,c2  = st.columns(2)
 
-c1 , c2 = st.columns(2)
-with c1:
-    st.write('Pie chart')
-    st.plotly_chart(px.histogram(df , y='Block' , color='District', height=300 , width=400))
-
-
-with c2:
-    st.write('Count plot')
-    st.plotly_chart(px.pie(data_frame=df , names='District', height=300 , width=400))
-
-st.write("Transplantation, harvesting and threshing methods.")
-c1 ,c2 = st.columns(2)
-
-with c1 :
-    with st.expander("Dsecribtion"):
-        st.write(df[['CropEstMethod' , 'Harv_method' , 'Threshing_method']].describe().T)
-    st.plotly_chart(px.histogram(data_frame=df , x='Harv_method' , y='Yield', height=400 , width=400))
-    st.plotly_chart(px.histogram(data_frame=df , x='CropEstMethod' , y='Yield', height=400 , width=400))
-with c2:
-    with st.expander("Defintions"):
-         st.write(var_def.loc[['CropEstMethod' , 'Harv_method' , 'Threshing_method']])
-    st.plotly_chart(px.histogram(data_frame=df , x='Threshing_method' , y='Yield', height=400 , width=400))
+    with c1 :
+        with st.expander("Dsecribtion"):
+            st.write(df[['CropEstMethod' , 'Harv_method' , 'Threshing_method']].describe().T)
+        st.plotly_chart(px.histogram(data_frame=df , x='Harv_method' , y='Yield', height=400 , width=400))
+        st.plotly_chart(px.histogram(data_frame=df , x='CropEstMethod' , y='Yield', height=400 , width=400))
+    with c2:
+        with st.expander("Defintions"):
+            st.write(var_def.loc[['CropEstMethod' , 'Harv_method' , 'Threshing_method']])
+        st.plotly_chart(px.histogram(data_frame=df , x='Threshing_method' , y='Yield', height=400 , width=400))
 
 
-st.write("Source of water and Source of power")
-c1 ,c2 = st.columns(2)
-with c1 :
-    with st.expander("Dsecribtion"):
-        st.write(df[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']].describe().T)
-    st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationSource' , y="Yield" ,width=400 , height=300))
-with c2:
-    with st.expander("Defintions"):
-         st.write(var_def.loc[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']])
-    st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationPowerSource' , y="Yield" ,width=400 , height=300))
+if st.checkbox("Source of water and Source of power"):
+    c1 ,c2 = st.columns(2)
+    with c1 :
+        with st.expander("Dsecribtion"):
+            st.write(df[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']].describe().T)
+        st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationSource' , y="Yield" ,width=400 , height=300))
+    with c2:
+        with st.expander("Defintions"):
+            st.write(var_def.loc[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']])
+        st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationPowerSource' , y="Yield" ,width=400 , height=300))
 
-st.write("Methods of fertilization")
-c1 ,c2  , c3= st.columns(3)
-with c1 :
-    with st.expander("Dsecribtion"):
-        st.write(df[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' , 'MineralFertAppMethod.1' , 'Stubble_use']].describe().T)
-    st.plotly_chart(px.histogram(df , x='PCropSolidOrgFertAppMethod' , y='Yield' , height=300 , width=400 ))
-    st.plotly_chart(px.histogram(df , x='MineralFertAppMethod' , y='Yield' , height=300 , width=400 ))
+if st.checkbox("Methods of fertilization"):
+    c1 ,c2  , c3= st.columns(3)
+    with c1 :
+        with st.expander("Dsecribtion"):
+            st.write(df[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' , 'MineralFertAppMethod.1' , 'Stubble_use']].describe().T)
+        st.plotly_chart(px.histogram(df , x='PCropSolidOrgFertAppMethod' , y='Yield' , height=300 , width=400 ))
+        st.plotly_chart(px.histogram(df , x='MineralFertAppMethod' , y='Yield' , height=300 , width=400 ))
 
-with c2:
-    with st.expander("Defintions"):
-         st.write(var_def.loc[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' ,'MineralFertAppMethod.1','Stubble_use']])
-    st.plotly_chart(px.histogram(df , x='MineralFertAppMethod.1' , y='Yield' , height=300 , width=400))
-    st.plotly_chart(px.histogram(df , x='Stubble_use', y='Yield',  height=300 , width=400))
+    with c2:
+        with st.expander("Defintions"):
+            st.write(var_def.loc[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' ,'MineralFertAppMethod.1','Stubble_use']])
+        st.plotly_chart(px.histogram(df , x='MineralFertAppMethod.1' , y='Yield' , height=300 , width=400))
+        st.plotly_chart(px.histogram(df , x='Stubble_use', y='Yield',  height=300 , width=400))
 st.write("**📍 Note: We dealing with imbalance data.**")
 
 
@@ -371,20 +373,31 @@ feat = st.selectbox('choose a variable to see it\'s distribution' , options= num
 st.write(var_def.loc[feat])
 st.plotly_chart(px.histogram(data_frame=df , x=feat  , marginal='box' ))
 
+st.write("**📍 Note: We dealing with alot of outliers, eveing after cuting off the extrem values in the data.**")
+
+
 st.markdown("* *Bi variante* :")
 st.write("Correlated features")
 c1 , c2 , c3 = st.columns(3)
 with c1:
-    st.plotly_chart(px.scatter(data_frame=df , x='CultLand', y='CropCultLand', width=350 , title="CultLand vs CropCultLand"))    
+    r1 = df['CultLand'].corr(df['CropCultLand'])
+    st.plotly_chart(px.scatter(data_frame=df , x='CultLand', y='CropCultLand', width=350 , title=f"r= {r1:.2f}")) 
 with c2:
-    st.plotly_chart(px.scatter(data_frame=df , x='BasalDAP', y= '1tdUrea', width=350, title="BasalDAP vs 1tdUrea"))
+    r3 = df['Yield'].corr(df['Acre'])
+    st.plotly_chart(px.scatter(data_frame=df , x='Acre', y='Yield' , width=350, title=f"r= {r3:.2f}"))
 with c3:
-    st.plotly_chart(px.scatter(data_frame=df , x='Acre', y='Yield' , width=350, title="Yield vs Acre"))
+    r2 = df['BasalDAP'].corr(df['1tdUrea'])
+    st.plotly_chart(px.scatter(data_frame=df , x='BasalDAP', y= '1tdUrea', width=350, title=f"r= {r2:.2f}"))
+
+st.write("""**📍 Note: Outliers can be saw in this correlated features.**""")
+
 
 st.subheader("Infrence")
 st.write("* **In this section we gonna use some statistics, hypothesis testing**")
 st.write("* **We will us noneparametric tests , due the data is not normaly distribuit**")
-st.markdown("<h6>1- Mann_wetny U tset<h6/>" , unsafe_allow_html=True)
+st.markdown("<h6>1- Mann_wetny U test<h6/>" , unsafe_allow_html=True)
+st.write("""* Null hypothesis (H0): There is no difference between the distributions of the two groups.
+* Alternative hypothesis (H1): There is a difference between the distributions of the two groups.""")
 
 c1 , c2 ,c3 = st.columns(3)
 with c1:
@@ -430,108 +443,30 @@ with c3:
     st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
              the median of yield given Threshing_method == 'plowed_in_soil' not equal the median of yield given Threshing_method == 'burned'""")
 
+st.markdown("<h6>2- Kruskal-Wallis test<h6/>" , unsafe_allow_html=True)
+st.write("""* Null hypothesis (H0): There is no difference in the medians of the groups being compared.
+* Alternative hypothesis (H1): There is a difference in the medians of the groups being compared.""")
+from scipy.stats import kruskal
+st.write("**Zone ('zone1', 'zone2', 'zone3')**")
+group1 = train_df[train_df['Zone']=="zone1"]
+st.write("- Group1 n=",group1.shape[0])
+group2 = train_df[train_df['Zone']=="zone2"]
+st.write("- Group2 n=",group2.shape[0])
+group3 = train_df[train_df['Zone']=="zone3"]
+st.write("- Group3 n=",group3.shape[0])
+# Assuming group1, group2, and group3 are pandas DataFrames with a column named "Yield"
+result = kruskal(group1["Yield"], group2["Yield"], group3["Yield"])
 
+st.write("Kruskal-Wallis test statistic:", result.statistic)
+st.write("p-value:", result.pvalue)
+st.write("""* Descision : since p_value < 0.05 level of significant , we rejct H0 and conclud that
+         there is a difference in the Yield medians of the groups being compared.""")
 
-# Radio button
-# radio_button = st.radio("Choose an option", ("Option 1", "Option 2", "Option 3"))
-# st.write(f"You selected: {radio_button}")
-
-# # Selectbox
-# selectbox = st.selectbox("Choose an option", ("Option 1", "Option 2", "Option 3"))
-# st.write(f"You selected: {selectbox}")
-
-# # Multiselect
-# multiselect = st.multiselect("Choose options", ("Option 1", "Option 2", "Option 3"))
-# st.write(f"You selected: {multiselect}")
-
-# # Slider
-# slider = st.slider("Choose a value", 0, 10)
-# st.write(f"You selected: {slider}")
-
-# # Text input
-# text_input = st.text_input("Enter text")
-# st.write(f"You entered: {text_input}")
-
-# # Number input
-# number_input = st.number_input("Enter a number", min_value=0.0, max_value=100.0, value=50.0, step=1.0)
-# st.write(f"You entered: {number_input}")
-
-# # Text area
-# text_area = st.text_area("Enter text here")
-# st.write(f"You entered:\n{text_area}")
-
-# # Date input
-# date_input = st.date_input("Select a date")
-# st.write(f"You selected: {date_input}")
-
-# # Time input
-# time_input = st.time_input("Select a time")
-# st.write(f"You selected: {time_input}")
-
-# File uploader
-# file_uploader = st.file_uploader("Upload a file")
-# if file_uploader is not None:
-#     st.write(f"You uploaded: {file_uploader.name}")
-
-# Display image
-# st.image("output.png", caption="Streamlit Logo", use_column_width=True)
-
-# # Display audio
-# audio_file = open("audio.mp3", "rb")
-# audio_bytes = audio_file.read()
-# st.audio(audio_bytes, format="audio/mp3")
-
-# # Display video
-# video_file = open("video.mp4", "rb")
-# video_bytes = video_file.read()
-# st.video(video_bytes)
-
-# Display data
-# import pandas as pd
-# df = pd.DataFrame({
-#     "Name": ["Alice", "Bob", "Charlie"],
-#     "Age": [30, 25, 35]
-# })
-# st.dataframe(df)
-
-# # Plot data
-# import matplotlib.pyplot as plt
-# import numpy as np
-# x = np.linspace(0, 10, 100)
-# y = np.sin(x)
-# plt.plot(x, y)
-# st.pyplot()
-
-# # Add columns
-# col1, col2, col3 = st.columns(3)
-# with col1:
-#     st.write("Column 1")
-# with col2:
-#     st.write("Column 2")
-# with col3:
-#     st.write("Column 3")
-
-# Expander
-# with st.expander("Click to expand"):
-#     st.write("This is inside the expander")
-
-# # Display progress
-# import time
-# with st.spinner("Wait for it..."):
-#     time.sleep(5)
-#     st.success("Done!")
-
-# # Display error
-# st.error("This is an error")
-
-# # Display warning
-# st.warning("This is a warning")
-
-# # Display info
-# st.info("This is an info message")
-
-# # Display success
-# st.success("This is a success message")
+st.subheader("Insights")
+st.markdown("**I well show the foundings and recommendations :**")
+st.write("* The date time features are useless, we can use the seasons and the different between featues in days.")
+st.write("* The catogrical columns as we see are imbalance, may be we can use resample techniques.")
+st.write("* The numerical features contains alot of outliers and the are very skewed , but it's the nature of this district in rice Yield")
 
 # Sidebar
 
