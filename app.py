@@ -427,7 +427,7 @@ with c1:
     </tr>
     <tr>
       <th>alternative</th>
-      <td>two-sided</td>
+      <td>less</td>
     </tr>
     <tr>
       <th>p-val</th>
@@ -439,7 +439,7 @@ with c1:
     </tr>
     <tr>
       <th>CLES</th>
-      <td>0.35</td>
+      <td>0.65</td>
     </tr>
   </tbody>
 </table>
@@ -457,13 +457,47 @@ with c2:
     st.write("H0: Group1[Yield]median = Group2[Yeild]median")
     st.write("H1: Group1[Yield]median < Group2[Yeild]median")
     test = pg.mwu(group1["Yield"], group2["Yield"]).T
-    st.dataframe(pg.mwu(group1["Yield"], group2["Yield"],alternative='less'))
+    st.write("""<div>
+<style scoped>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MWU</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>U-val</th>
+      <td>1280845.00</td>
+    </tr>
+    <tr>
+      <th>alternative</th>
+      <td>less</td>
+    </tr>
+    <tr>
+      <th>p-val</th>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <th>RBC</th>
+      <td>0.19</td>
+    </tr>
+    <tr>
+      <th>CLES</th>
+      <td>0.59</td>
+    </tr>
+  </tbody>
+</table>
+</div>""" , unsafe_allow_html=True)
+
     st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
              the median of yield given Threshing_method == 'hand' is less than the median of yield given Threshing_method == 'machine'""")    
 
 with c3:
     # 1- Stubble_use
-    st.write("**Threshing_method ('hand' , 'machine')**")
+    st.write("**Stubble_use ('plowed_in_soil' , 'burned')**")
     group1 = train_df[train_df['Stubble_use']=="plowed_in_soil"]
     st.write("- Group1 n=",group1.shape[0])
     group2 = train_df[train_df['Stubble_use']=="burned"]
@@ -472,7 +506,40 @@ with c3:
     st.write("H0: Group1[Yield]median = Group2[Yeild]median")
     st.write("H1: Group1[Yield]median ≠ Group2[Yeild]median")
 
-    st.write(pg.mwu(group1["Yield"], group2["Yield"],alternative='two-sided').T)
+    st.write("""<div>
+<style scoped>
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MWU</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>U-val</th>
+      <td>17454.00</td>
+    </tr>
+    <tr>
+      <th>alternative</th>
+      <td>two-sided</td>
+    </tr>
+    <tr>
+      <th>p-val</th>
+      <td>0.00</td>
+    </tr>
+    <tr>
+      <th>RBC</th>
+      <td>0.51</td>
+    </tr>
+    <tr>
+      <th>CLES</th>
+      <td>0.25</td>
+    </tr>
+  </tbody>
+</table>
+</div>""", unsafe_allow_html=True)
     st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
              the median of yield given Threshing_method == 'plowed_in_soil' not equal the median of yield given Threshing_method == 'burned'""")
 
