@@ -307,7 +307,7 @@ if st.checkbox("Seasons"):
         st.image('seasons2.png' , caption='Harvrest seasons ' , use_column_width=True )
 
 st.markdown("* Catogrical features :")
-if st.checkbox("**District, Block and Zone**") :
+if st.checkbox("District, Block and Zone") :
 
     c1 ,c2 ,c3 = st.columns(3)
 
@@ -373,7 +373,7 @@ feat = st.selectbox('choose a variable to see it\'s distribution' , options= num
 st.write(var_def.loc[feat])
 st.plotly_chart(px.histogram(data_frame=df , x=feat  , marginal='box' ))
 
-st.write("**📍 Note: We dealing with alot of outliers, eveing after cuting off the extrem values in the data.**")
+st.write("**📍 Note: We dealing with alot of outliers, eveing after cutting off the extreme values in the data.**")
 
 
 st.markdown("* *Bi variante* :")
@@ -394,7 +394,7 @@ st.write("""**📍 Note: Outliers can be saw in this correlated features.**""")
 
 st.subheader("Infrence")
 st.write("* **In this section we gonna use some statistics, hypothesis testing**")
-st.write("* **We will us noneparametric tests , due the data is not normaly distribuit**")
+st.write("* **We will us noneparametric tests , due the data is not normaly distributed.**")
 st.markdown("<h6>1- Mann_wetny U test<h6/>" , unsafe_allow_html=True)
 st.write("""* Null hypothesis (H0): There is no difference between the distributions of the two groups.
 * Alternative hypothesis (H1): There is a difference between the distributions of the two groups.""")
