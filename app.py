@@ -566,7 +566,7 @@ st.subheader("Insights")
 st.markdown("**I well show the foundings and recommendations :**")
 st.write("* The date time features are useless, we can use the seasons and the different between featues in days.")
 st.write("* The catogrical columns as we see are imbalance, may be we can use resample techniques.")
-st.write("* The numerical features contains alot of outliers and the are very skewed , but it's the nature of this district in rice Yield")
+st.write("* The numerical features contains alot of outliers and the are very skewed , but it's the nature of this districts in rice cultivation.")
 
 # Sidebar
 
