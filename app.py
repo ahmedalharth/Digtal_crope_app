@@ -585,6 +585,3 @@ st.sidebar.write(" * EDA ")
 st.sidebar.write(" * Infrence  ")
 
 st.sidebar.markdown(" # insghts")
-
-
-
