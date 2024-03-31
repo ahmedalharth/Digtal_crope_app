@@ -313,7 +313,7 @@ if st.checkbox("District, Block and Zone") :
 
     with c1 :
         with st.expander("Dsecribtion"):
-            st.write(df.groupby('District')['Block'].unique())
+            st.write(df.groupby('District')['Block'].unique().to_frame())
         st.write('Pie chart')
         st.plotly_chart(px.histogram(df , y='Block' , color='District', height=300 , width=300))
     with c2:
