@@ -332,12 +332,12 @@ if st.checkbox("Transplantation, harvesting and threshing methods."):
     with c1 :
         with st.expander("Dsecribtion"):
             st.write(df[['CropEstMethod' , 'Harv_method' , 'Threshing_method']].describe().T)
-        st.plotly_chart(px.histogram(data_frame=df , x='Harv_method' , y='Yield', height=400 , width=400))
-        st.plotly_chart(px.histogram(data_frame=df , x='CropEstMethod' , y='Yield', height=400 , width=400))
+        st.plotly_chart(px.histogram(data_frame=df , x='Harv_method' , height=400 , width=400))
+        st.plotly_chart(px.histogram(data_frame=df , x='CropEstMethod' , height=400 , width=400))
     with c2:
         with st.expander("Defintions"):
             st.write(var_def.loc[['CropEstMethod' , 'Harv_method' , 'Threshing_method']])
-        st.plotly_chart(px.histogram(data_frame=df , x='Threshing_method' , y='Yield', height=400 , width=400))
+        st.plotly_chart(px.histogram(data_frame=df , x='Threshing_method' , height=400 , width=400))
 
 
 if st.checkbox("Source of water and Source of power"):
@@ -345,25 +345,25 @@ if st.checkbox("Source of water and Source of power"):
     with c1 :
         with st.expander("Dsecribtion"):
             st.write(df[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']].describe().T)
-        st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationSource' , y="Yield" ,width=400 , height=300))
+        st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationSource'  ,width=400 , height=300))
     with c2:
         with st.expander("Defintions"):
             st.write(var_def.loc[['TransplantingIrrigationSource', 'TransplantingIrrigationPowerSource']])
-        st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationPowerSource' , y="Yield" ,width=400 , height=300))
+        st.plotly_chart(px.histogram(data_frame=df , x= 'TransplantingIrrigationPowerSource' ,width=400 , height=300))
 
 if st.checkbox("Methods of fertilization"):
     c1 ,c2  , c3= st.columns(3)
     with c1 :
         with st.expander("Dsecribtion"):
             st.write(df[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' , 'MineralFertAppMethod.1' , 'Stubble_use']].describe().T)
-        st.plotly_chart(px.histogram(df , x='PCropSolidOrgFertAppMethod' , y='Yield' , height=300 , width=400 ))
-        st.plotly_chart(px.histogram(df , x='MineralFertAppMethod' , y='Yield' , height=300 , width=400 ))
+        st.plotly_chart(px.histogram(df , x='PCropSolidOrgFertAppMethod' , height=300 , width=400 ))
+        st.plotly_chart(px.histogram(df , x='MineralFertAppMethod' , height=300 , width=400 ))
 
     with c2:
         with st.expander("Defintions"):
             st.write(var_def.loc[['PCropSolidOrgFertAppMethod' ,'MineralFertAppMethod' ,'MineralFertAppMethod.1','Stubble_use']])
-        st.plotly_chart(px.histogram(df , x='MineralFertAppMethod.1' , y='Yield' , height=300 , width=400))
-        st.plotly_chart(px.histogram(df , x='Stubble_use', y='Yield',  height=300 , width=400))
+        st.plotly_chart(px.histogram(df , x='MineralFertAppMethod.1' , height=300 , width=400))
+        st.plotly_chart(px.histogram(df , x='Stubble_use', height=300 , width=400))
 st.write("**📍 Note: We dealing with imbalance data.**")
 
 
