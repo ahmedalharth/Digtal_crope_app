@@ -322,8 +322,8 @@ if st.checkbox("District, Block and Zone") :
         st.write('Count plot')
         st.plotly_chart(px.pie(data_frame=df , names='District', height=300 , width=300))
     with c3:
-#         with st.expander("zone"):
-#             st.write(df['Zone'].describe())
+        with st.expander("zone"):
+            st.tabel(df['Zone'].describe())
         st.write('Count plot')
         st.plotly_chart(px.pie(data_frame=df , names='Zone', height=300 , width=300))
 if st.checkbox("Transplantation, harvesting and threshing methods."):
