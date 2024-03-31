@@ -373,7 +373,7 @@ feat = st.selectbox('choose a variable to see it\'s distribution' , options= num
 st.write(var_def.loc[feat])
 st.plotly_chart(px.histogram(data_frame=df , x=feat  , marginal='box' ))
 
-st.write("**📍 Note: We dealing with alot of outliers, eveing after cutting off the extreme values in the data.**")
+st.write("**📍 Note: We dealing with alot of outliers,even after cutting off the extreme values in the data.**")
 
 
 st.markdown("* *Bi variante* :")
