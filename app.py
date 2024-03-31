@@ -318,12 +318,12 @@ if st.checkbox("District, Block and Zone") :
         st.plotly_chart(px.histogram(df , y='Block' , color='District', height=300 , width=300))
     with c2:
         with st.expander("Defintions"):
-            st.write(var_def.loc[['District' , 'Block']])
+            st.write(var_def.loc[['District' , 'Block']].to_frame())
         st.write('Count plot')
         st.plotly_chart(px.pie(data_frame=df , names='District', height=300 , width=300))
     with c3:
         with st.expander("zone"):
-            st.dataframe(df['Zone'].describe())
+            st.write(df['Zone'].value_counts().to_frame())
         st.write('Count plot')
         st.plotly_chart(px.pie(data_frame=df , names='Zone', height=300 , width=300))
 if st.checkbox("Transplantation, harvesting and threshing methods."):
