@@ -393,7 +393,7 @@ st.write("""**📍 Note: Outliers can be saw in this correlated features.**""")
 
 
 st.subheader("Infrence")
-st.write("* **In this section we gonna use some statistics, hypothesis testing**")
+st.write("* **In this section we gonna use some statistics, hypothesis testing.**")
 st.write("* **We will us noneparametric tests , due the data is not normaly distributed.**")
 st.markdown("<h6>1- Mann_wetny U test<h6/>" , unsafe_allow_html=True)
 st.write("""* Null hypothesis (H0): There is no difference between the distributions of the two groups.
