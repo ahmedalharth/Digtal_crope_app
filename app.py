@@ -395,7 +395,7 @@ st.write("""**📍 Note: Outliers can be saw in this correlated features.**""")
 st.subheader("Infrence")
 st.write("* **In this section we gonna use some statistics, hypothesis testing.**")
 st.write("* **We will us noneparametric tests , due the data is not normaly distributed.**")
-st.markdown("<h6>1- Mann_wetny U test<h6/>" , unsafe_allow_html=True)
+st.markdown("<h4>1- Mann_wetny U test<h4/>" , unsafe_allow_html=True)
 st.write("""* Null hypothesis (H0): There is no difference between the distributions of the two groups.
 * Alternative hypothesis (H1): There is a difference between the distributions of the two groups.""")
 
@@ -543,7 +543,7 @@ with c3:
     st.write("""* Descision : sice P-value < 0.05 level of significant , we rejct H0 and conclud that 
              the median of yield given Threshing_method == 'plowed_in_soil' not equal the median of yield given Threshing_method == 'burned'""")
 
-st.markdown("<h6>2- Kruskal-Wallis test<h6/>" , unsafe_allow_html=True)
+st.markdown("<h4>2- Kruskal-Wallis test<h4/>" , unsafe_allow_html=True)
 st.write("""* Null hypothesis (H0): There is no difference in the medians of the groups being compared.
 * Alternative hypothesis (H1): There is a difference in the medians of the groups being compared.""")
 
